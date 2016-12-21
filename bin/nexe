@@ -73,10 +73,12 @@ if (argv.h || argv.help) {
  **/
 function toAbsolute(pt) {
   //already resolved?
-  try{
-    fs.accessSync(pt,fs.F_OK);
-    return pt;
-  }catch(e){}
+  if(path.isAbsolute(pt)) {
+    try{
+      fs.accessSync(pt,fs.F_OK);
+      return pt;
+    }catch(e){}
+  }
 
   if (pt.substr(0, 1) == "/") return pt; // for *nix "/"
   if (pt.substr(0, 2) == "\\\\") return pt; // for windows "\\"
