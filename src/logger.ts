@@ -21,7 +21,7 @@ export class Logger {
     this.verbose = level === 'verbose'
     this.silent = level === 'silent'
     if (!this.silent) {
-      this.ora = ora({
+      this.ora = (ora as any)({
         text: 'Starting...',
         color: 'blue',
         spinner: 'dots'
