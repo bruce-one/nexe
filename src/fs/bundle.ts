@@ -79,7 +79,7 @@ export class Bundle {
       // TODO windows support
       const destPath = resolve('/', relPath)
       const destDirPath = dirname(destPath)
-      const _content = content ?? readFileSync(srcPath)
+      const _content = content || readFileSync(srcPath)
       mkdirp.sync(destDirPath, {
         fs: zipFs
       })
