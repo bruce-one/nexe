@@ -86,9 +86,6 @@ export class SnapshotZipFS extends BasePortableFakeFS {
     this.filter = filter
     this.maxOpenFiles = maxOpenFiles
     this.readOnlyArchives = readOnlyArchives
-
-    this.isZip = new Set()
-    this.notZip = new Set()
   }
 
   getExtractHint(hints: ExtractHintOptions) {
