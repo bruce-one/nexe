@@ -300,7 +300,7 @@ export class SnapshotZipFS extends BasePortableFakeFS {
       },
       (zipFs, { archivePath, subPath }) => {
         return this.pathUtils.resolve(
-          this.baseFs.realpathSync(archivePath),
+          archivePath,
           this.pathUtils.relative(PortablePath.root, zipFs.realpathSync(subPath))
         )
       }
