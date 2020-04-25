@@ -2,6 +2,7 @@ import { delimiter, resolve, normalize, join } from 'path'
 import { Buffer } from 'buffer'
 import { createReadStream, ReadStream, mkdtempSync, statSync } from 'fs'
 import { spawn } from 'child_process'
+import * as mkdirp from 'mkdirp'
 import { Logger, LogStep } from './logger'
 import {
   readFileAsync,
@@ -116,6 +117,7 @@ export class NexeCompiler {
         'https://github.com/nexe/nexe/releases/download/v3.0.0/' + this.target.toString()
     }
     this.src = join(this.options.temp, this.target.version)
+    mkdirp.sync(this.options.temp)
     const tempZipDir = mkdtempSync(join(this.options.temp, 'zip'))
     const tempZip = join(tempZipDir, 'bundle.zip')
     this.configureScript = configure + (semverGt(this.target.version, '10.10.0') ? '.py' : '')
