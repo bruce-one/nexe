@@ -66,6 +66,7 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
     }
   }
   patches.internalModuleReadFile = function(this: any, original: any, ...args: any[]) {
+    log(`internalModuleReadFile ${args[0]}`)
     return fs.readFileSync(args[0], 'utf-8')
   }
   patches.internalModuleReadJSON = (...args: any[]) => {
@@ -76,7 +77,7 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
     }
   }
   patches.internalModuleStat = function(this: any, original: any, ...args: any[]) {
-    console.dir(npath.contains('/snapshot', args[0]))
+    log(`internalModuleStat ${npath.contains('/snapshot', args[0])}`)
     if (npath.contains('/snapshot', args[0]) === '/') {
       return 1
     }
