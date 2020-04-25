@@ -2,6 +2,7 @@ import { getLibzipSync } from '@yarnpkg/libzip'
 import { patchFs, npath, PosixFS, NodeFS, ZipFS } from '@yarnpkg/fslib'
 import { SnapshotZipFS } from './SnapshotZipFS'
 import * as assert from 'assert'
+import * as constants from 'constants'
 
 export interface NexeHeader {
   blobPath: string
@@ -79,7 +80,7 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
         if (stat.isDirectory()) return 1
         return 0
       } catch (e) {
-        return -e.errno
+        return -constants.ENOENT
       }
     } else {
       return original.apply(this, args)
