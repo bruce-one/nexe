@@ -285,7 +285,7 @@ export class SnapshotZipFS extends BasePortableFakeFS {
       },
       async (zipFs, { archivePath, subPath }) => {
         return this.pathUtils.resolve(
-          await this.baseFs.realpathPromise(archivePath),
+          archivePath,
           this.pathUtils.relative(PortablePath.root, await zipFs.realpathPromise(subPath))
         )
       }
