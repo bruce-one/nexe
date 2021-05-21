@@ -68,7 +68,7 @@
     "@types/chai": "^4",
     "@types/download": "^6",
     "@types/globby": "^9",
-    "@types/got": "^9.6.11",
+    "@types/got": "^9.6.12",
     "@types/highland": "^2.12.14",
     "@types/minimist": "^1.2.1",
     "@types/mkdirp": "^1.0.1",
