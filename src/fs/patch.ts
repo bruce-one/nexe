@@ -48,7 +48,6 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
     libzip: getLibzipSync(),
     zipFs,
     baseFs: nodeFs,
-    readOnlyArchives: true,
   })
   const posixSnapshotZipFs = new PosixFS(snapshotZipFS)
   patchFs(fs, posixSnapshotZipFs)
