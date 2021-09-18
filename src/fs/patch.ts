@@ -86,7 +86,7 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
     if (npath.contains('/snapshot', args[0]) === '/') {
       return 1
     }
-    if (true || npath.contains('/snapshot', args[0]) != null) {
+    if (npath.contains('/snapshot', args[0]) != null) {
       try {
         const stat = fs.statSync(args[0])
         if (stat.isDirectory()) return 1

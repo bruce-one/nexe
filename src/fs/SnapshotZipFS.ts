@@ -21,17 +21,10 @@ export class SnapshotZipFS extends ZipOpenFS {
 }
 
 function findZip(zipFs: ZipFS, p: PortablePath) {
-  for (const path of new Set([
-    p,
-    resolve('/snapshot', p),
-    resolve('/snapshot', p.replace(new RegExp(`^${process.cwd()}/?`), '')),
-  ])) {
-    // @ts-ignore: TS2341
-    if (zipFs.existsSync(path)) {
-      return {
-        archivePath: npath.toPortablePath(process.execPath),
-        subPath: npath.toPortablePath(path),
-      }
+  if (zipFs.existsSync(p)) {
+    return {
+      archivePath: npath.toPortablePath(process.execPath),
+      subPath: npath.toPortablePath(p),
     }
   }
 }
