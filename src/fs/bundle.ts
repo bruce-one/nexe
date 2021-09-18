@@ -28,7 +28,7 @@ export class Bundle {
     return Array.from(this.files)
   }
 
-  public addResource(absoluteFileName: string, content?: File | Buffer | string | null) {
+  public addResource(absoluteFileName: string, content?: File | Buffer | string) {
     const destPath = makeRelativeToZip(this.cwd, absoluteFileName)
     if (!this.files.has(destPath)) {
       if (content == null) {
@@ -42,6 +42,8 @@ export class Bundle {
 
   public async toBuffer(): Promise<Buffer> {
     this.zip.finalize()
-    return await new Promise((resolve) => highland(this.zip).toArray((arr: Array<Buffer>) => resolve(Buffer.concat(arr))))
+    return await new Promise((resolve) =>
+      highland(this.zip).toArray((arr: Array<Buffer>) => resolve(Buffer.concat(arr)))
+    )
   }
 }
