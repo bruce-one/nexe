@@ -11,7 +11,6 @@ export type SnapshotZipFSOptions = {
   zipFs: ZipFS
 }
 
-// @ts-ignore: TS2341
 export class SnapshotZipFS extends BasePortableFakeFS {
   zipFs: ZipFS
   baseFs: FakeFS<PortablePath>
@@ -98,12 +97,68 @@ export class SnapshotZipFS extends BasePortableFakeFS {
       }
     }
   }
-}
 
-for (const k of Reflect.ownKeys(ZipOpenFS.prototype)) {
-  // @ts-ignore: TS2341
-  if (k !== 'libzip' && !SnapshotZipFS.prototype[k]) {
-    // @ts-ignore: TS2341
-    SnapshotZipFS.prototype[k] = ZipOpenFS.prototype[k]
-  }
+  accessPromise = ZipOpenFS.prototype.accessPromise
+  accessSync = ZipOpenFS.prototype.accessSync
+  appendFilePromise = ZipOpenFS.prototype.appendFilePromise
+  appendFileSync = ZipOpenFS.prototype.appendFileSync
+  chmodPromise = ZipOpenFS.prototype.chmodPromise
+  chmodSync = ZipOpenFS.prototype.chmodSync
+  chownPromise = ZipOpenFS.prototype.chownPromise
+  chownSync = ZipOpenFS.prototype.chownSync
+  closePromise = ZipOpenFS.prototype.closePromise
+  closeSync = ZipOpenFS.prototype.closeSync
+  copyFilePromise = ZipOpenFS.prototype.copyFilePromise
+  copyFileSync = ZipOpenFS.prototype.copyFileSync
+  createReadStream = ZipOpenFS.prototype.createReadStream
+  createWriteStream = ZipOpenFS.prototype.createWriteStream
+  existsPromise = ZipOpenFS.prototype.existsPromise
+  existsSync = ZipOpenFS.prototype.existsSync
+  fstatPromise = ZipOpenFS.prototype.fstatPromise
+  fstatSync = ZipOpenFS.prototype.fstatSync
+  getExtractHint = ZipOpenFS.prototype.getExtractHint
+  getRealPath = ZipOpenFS.prototype.getRealPath
+  linkPromise = ZipOpenFS.prototype.linkPromise
+  linkSync = ZipOpenFS.prototype.linkSync
+  lstatPromise = ZipOpenFS.prototype.lstatPromise
+  lstatSync = ZipOpenFS.prototype.lstatSync
+  mkdirPromise = ZipOpenFS.prototype.mkdirPromise
+  mkdirSync = ZipOpenFS.prototype.mkdirSync
+  opendirPromise = ZipOpenFS.prototype.opendirPromise
+  opendirSync = ZipOpenFS.prototype.opendirSync
+  openPromise = ZipOpenFS.prototype.openPromise
+  openSync = ZipOpenFS.prototype.openSync
+  readdirPromise = ZipOpenFS.prototype.readdirPromise
+  readdirSync = ZipOpenFS.prototype.readdirSync
+  readFilePromise = ZipOpenFS.prototype.readFilePromise
+  readFileSync = ZipOpenFS.prototype.readFileSync
+  readlinkPromise = ZipOpenFS.prototype.readlinkPromise
+  readlinkSync = ZipOpenFS.prototype.readlinkSync
+  readPromise = ZipOpenFS.prototype.readPromise
+  readSync = ZipOpenFS.prototype.readSync
+  renamePromise = ZipOpenFS.prototype.renamePromise
+  renameSync = ZipOpenFS.prototype.renameSync
+  resolve = ZipOpenFS.prototype.resolve
+  rmdirPromise = ZipOpenFS.prototype.rmdirPromise
+  rmdirSync = ZipOpenFS.prototype.rmdirSync
+  statPromise = ZipOpenFS.prototype.statPromise
+  statSync = ZipOpenFS.prototype.statSync
+  symlinkPromise = ZipOpenFS.prototype.symlinkPromise
+  symlinkSync = ZipOpenFS.prototype.symlinkSync
+  truncatePromise = ZipOpenFS.prototype.truncatePromise
+  truncateSync = ZipOpenFS.prototype.truncateSync
+  unlinkPromise = ZipOpenFS.prototype.unlinkPromise
+  unlinkSync = ZipOpenFS.prototype.unlinkSync
+  unwatchFile = ZipOpenFS.prototype.unwatchFile
+  utimesPromise = ZipOpenFS.prototype.utimesPromise
+  utimesSync = ZipOpenFS.prototype.utimesSync
+  watch = ZipOpenFS.prototype.watch
+  watchFile = ZipOpenFS.prototype.watchFile
+  writeFilePromise = ZipOpenFS.prototype.writeFilePromise
+  writeFileSync = ZipOpenFS.prototype.writeFileSync
+  writePromise = ZipOpenFS.prototype.writePromise
+  writeSync = ZipOpenFS.prototype.writeSync
+
+  // @ts-ignore
+  remapFd = ZipOpenFS.prototype.remapFd
 }
