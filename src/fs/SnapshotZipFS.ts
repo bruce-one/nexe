@@ -1,9 +1,14 @@
 import { Libzip } from '@yarnpkg/libzip'
 import { FakeFS, PortablePath, ZipFS, ZipOpenFS } from '@yarnpkg/fslib'
 import { ZipOpenFSOptions } from '@yarnpkg/fslib/lib/ZipOpenFS'
-import { BasePortableFakeFS } from '@yarnpkg/fslib/lib/FakeFS'
-import { FSPath, npath } from '@yarnpkg/fslib/lib/path'
+import {
+  WriteFileOptions,
+  CreateWriteStreamOptions,
+  BasePortableFakeFS,
+} from '@yarnpkg/fslib/lib/FakeFS'
+import { FSPath } from '@yarnpkg/fslib/lib/path'
 import { resolve } from 'path'
+import { WriteStream, constants } from 'fs'
 
 export type SnapshotZipFSOptions = {
   baseFs: FakeFS<PortablePath>
@@ -85,25 +90,140 @@ export class SnapshotZipFS extends BasePortableFakeFS {
   findZip(p: PortablePath) {
     if (this.zipFs.existsSync(p)) {
       return {
-        subPath: npath.toPortablePath(p),
+        subPath: this.resolve(p),
       }
     }
   }
 
+  createWriteStream(p: PortablePath | null, opts?: CreateWriteStreamOptions): WriteStream {
+    return this.baseFs.createWriteStream(p, opts)
+  }
+
+  writeFilePromise(
+    p: FSPath<PortablePath>,
+    content: string | Buffer | ArrayBuffer | DataView,
+    opts?: WriteFileOptions
+  ): Promise<void> {
+    return this.baseFs.writeFilePromise(p, content, opts)
+  }
+
+  writeFileSync(
+    p: FSPath<PortablePath>,
+    content: string | Buffer | ArrayBuffer | DataView,
+    opts?: WriteFileOptions
+  ): void {
+    return this.baseFs.writeFileSync(p, content, opts)
+  }
+
+  async appendFilePromise(
+    p: FSPath<PortablePath>,
+    content: string | Buffer | ArrayBuffer | DataView,
+    opts?: WriteFileOptions
+  ) {
+    return await this.baseFs.appendFilePromise(p, content, opts)
+  }
+
+  appendFileSync(
+    p: FSPath<PortablePath>,
+    content: string | Buffer | ArrayBuffer | DataView,
+    opts?: WriteFileOptions
+  ) {
+    return this.baseFs.appendFileSync(p, content, opts)
+  }
+
+  async copyFilePromise(sourceP: PortablePath, destP: PortablePath, flags: number = 0) {
+    const fallback = async (
+      sourceFs: FakeFS<PortablePath>,
+      sourceP: PortablePath,
+      destFs: FakeFS<PortablePath>,
+      destP: PortablePath
+    ) => {
+      if ((flags & constants.COPYFILE_FICLONE_FORCE) !== 0)
+        throw Object.assign(
+          new Error(`EXDEV: cross-device clone not permitted, copyfile '${sourceP}' -> ${destP}'`),
+          { code: `EXDEV` }
+        )
+      if (flags & constants.COPYFILE_EXCL && (await this.existsPromise(sourceP)))
+        throw Object.assign(
+          new Error(`EEXIST: file already exists, copyfile '${sourceP}' -> '${destP}'`),
+          { code: `EEXIST` }
+        )
+
+      let content
+      try {
+        content = await sourceFs.readFilePromise(sourceP)
+      } catch (error) {
+        throw Object.assign(
+          new Error(`EINVAL: invalid argument, copyfile '${sourceP}' -> '${destP}'`),
+          { code: `EINVAL` }
+        )
+      }
+
+      await destFs.writeFilePromise(destP, content)
+    }
+
+    return await this.makeCallPromise(
+      sourceP,
+      async () => {
+        return await this.baseFs.copyFilePromise(sourceP, destP, flags)
+      },
+      async (zipFsS, { subPath: subPathS }) => {
+        return await fallback(zipFsS, subPathS, this.baseFs, destP)
+      }
+    )
+  }
+
+  copyFileSync(sourceP: PortablePath, destP: PortablePath, flags: number = 0) {
+    const fallback = (
+      sourceFs: FakeFS<PortablePath>,
+      sourceP: PortablePath,
+      destFs: FakeFS<PortablePath>,
+      destP: PortablePath
+    ) => {
+      if ((flags & constants.COPYFILE_FICLONE_FORCE) !== 0)
+        throw Object.assign(
+          new Error(`EXDEV: cross-device clone not permitted, copyfile '${sourceP}' -> ${destP}'`),
+          { code: `EXDEV` }
+        )
+      if (flags & constants.COPYFILE_EXCL && this.existsSync(sourceP))
+        throw Object.assign(
+          new Error(`EEXIST: file already exists, copyfile '${sourceP}' -> '${destP}'`),
+          { code: `EEXIST` }
+        )
+
+      let content
+      try {
+        content = sourceFs.readFileSync(sourceP)
+      } catch (error) {
+        throw Object.assign(
+          new Error(`EINVAL: invalid argument, copyfile '${sourceP}' -> '${destP}'`),
+          { code: `EINVAL` }
+        )
+      }
+
+      destFs.writeFileSync(destP, content)
+    }
+
+    return this.makeCallSync(
+      sourceP,
+      () => {
+        return this.baseFs.copyFileSync(sourceP, destP, flags)
+      },
+      (zipFsS, { subPath: subPathS }) => {
+        return fallback(zipFsS, subPathS, this.baseFs, destP)
+      }
+    )
+  }
+
   accessPromise = ZipOpenFS.prototype.accessPromise
   accessSync = ZipOpenFS.prototype.accessSync
-  appendFilePromise = ZipOpenFS.prototype.appendFilePromise
-  appendFileSync = ZipOpenFS.prototype.appendFileSync
   chmodPromise = ZipOpenFS.prototype.chmodPromise
   chmodSync = ZipOpenFS.prototype.chmodSync
   chownPromise = ZipOpenFS.prototype.chownPromise
   chownSync = ZipOpenFS.prototype.chownSync
   closePromise = ZipOpenFS.prototype.closePromise
   closeSync = ZipOpenFS.prototype.closeSync
-  copyFilePromise = ZipOpenFS.prototype.copyFilePromise
-  copyFileSync = ZipOpenFS.prototype.copyFileSync
   createReadStream = ZipOpenFS.prototype.createReadStream
-  createWriteStream = ZipOpenFS.prototype.createWriteStream
   existsPromise = ZipOpenFS.prototype.existsPromise
   existsSync = ZipOpenFS.prototype.existsSync
   fstatPromise = ZipOpenFS.prototype.fstatPromise
@@ -146,8 +266,6 @@ export class SnapshotZipFS extends BasePortableFakeFS {
   utimesSync = ZipOpenFS.prototype.utimesSync
   watch = ZipOpenFS.prototype.watch
   watchFile = ZipOpenFS.prototype.watchFile
-  writeFilePromise = ZipOpenFS.prototype.writeFilePromise
-  writeFileSync = ZipOpenFS.prototype.writeFileSync
   writePromise = ZipOpenFS.prototype.writePromise
   writeSync = ZipOpenFS.prototype.writeSync
 
