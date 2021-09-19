@@ -22,47 +22,39 @@ export class SnapshotZipFS extends BasePortableFakeFS {
   private readonly fdMap: Map<number, [ZipFS, number]> = new Map()
   private nextFd = 3
 
-  // @ts-ignore
   async makeCallPromise<T>(
     p: FSPath<PortablePath>,
     discard: () => Promise<T>,
     accept: (zipFS: ZipFS, zipInfo: { subPath: PortablePath }) => Promise<T>,
     { requireSubpath = true }: { requireSubpath?: boolean } = {}
   ): Promise<T> {
-    if (typeof p !== `string`) return await discard()
+    if (typeof p !== 'string') return await discard()
 
-    // @ts-ignore: TS2341
     const normalizedP = this.resolve(p)
 
-    // @ts-ignore: TS2341
     const zipInfo = this.findZip(normalizedP)
     if (!zipInfo) return await discard()
 
-    if (requireSubpath && zipInfo.subPath === `/`) return await discard()
+    if (requireSubpath && zipInfo.subPath === '/') return await discard()
 
-    // @ts-ignore: TS2341
     return await accept(this.zipFs, zipInfo)
   }
 
-  // @ts-ignore
   makeCallSync<T>(
     p: FSPath<PortablePath>,
     discard: () => T,
     accept: (zipFS: ZipFS, zipInfo: { subPath: PortablePath }) => T,
     { requireSubpath = true }: { requireSubpath?: boolean } = {}
   ): T {
-    if (typeof p !== `string`) return discard()
+    if (typeof p !== 'string') return discard()
 
-    // @ts-ignore: TS2341
     const normalizedP = this.resolve(p)
 
-    // @ts-ignore: TS2341
     const zipInfo = this.findZip(normalizedP)
     if (!zipInfo) return discard()
 
-    if (requireSubpath && zipInfo.subPath === `/`) return discard()
+    if (requireSubpath && zipInfo.subPath === '/') return discard()
 
-    // @ts-ignore: TS2341
     return accept(this.zipFs, zipInfo)
   }
 
