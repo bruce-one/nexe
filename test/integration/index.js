@@ -9,15 +9,25 @@ async function runTests() {
   const executable = path.join(tempdir, path.basename(process.argv[0]))
   await copyFile(process.argv[0], executable)
   process.on('beforeExit', () => rimraf.sync(tempdir))
+  spawnExecutable({ cwd: tempdir }, (code) => {
+    if(code === 0) {
+      spawnExecutable({ cwd: '/' }, (code) => {
+        process.exitCode = code
+      })
+    } else {
+      process.exitCode = code
+    }
+  })
+}
+
+function spawnExecutable({ cwd }, cb) {
   cp.spawn(executable,
     [
     path.join(tempdir, 'node_modules/mocha/bin/mocha.js'),
       path.join(tempdir, 'test/integration/tests.integration-spec.js')
     ],
     { stdio: ['inherit', 'inherit', 'inherit', 'ipc'], cwd: tempdir }
-  ).on('exit', (code) => {
-    process.exitCode = code
-  })
+  ).on('exit', cb)
 }
 
 runTests()

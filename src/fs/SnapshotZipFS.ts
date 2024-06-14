@@ -42,12 +42,14 @@ export class SnapshotZipFS extends BasePortableFakeFS {
   zipFs: ZipFS
   baseFs: FakeFS<PortablePath>
   root: string
+  originalCwd: string
   magic: number
   constructor(opts: SnapshotZipFSOptions) {
     super()
     this.zipFs = opts.zipFs
     this.baseFs = opts.baseFs
     this.root = opts.root
+    this.originalCwd = process.cwd()
     this.magic = 0x2a << 24
   }
   private readonly fdMap: Map<number, [ZipFS, number]> = new Map()
@@ -119,6 +121,12 @@ export class SnapshotZipFS extends BasePortableFakeFS {
           snapshotPP,
           npath.toPortablePath(
             npath.relative(npath.fromPortablePath(this.root), npath.fromPortablePath(p))
+          )
+        ),
+        ppath.resolve(
+          snapshotPP,
+          npath.toPortablePath(
+            npath.relative(npath.fromPortablePath(this.originalCwd), npath.fromPortablePath(p))
           )
         ),
         ppath.resolve(
