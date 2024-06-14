@@ -42,14 +42,12 @@ export class SnapshotZipFS extends BasePortableFakeFS {
   zipFs: ZipFS
   baseFs: FakeFS<PortablePath>
   root: string
-  originalCwd: string
   magic: number
   constructor(opts: SnapshotZipFSOptions) {
     super()
     this.zipFs = opts.zipFs
     this.baseFs = opts.baseFs
     this.root = opts.root
-    this.originalCwd = process.cwd()
     this.magic = 0x2a << 24
   }
   private readonly fdMap: Map<number, [ZipFS, number]> = new Map()
@@ -126,12 +124,6 @@ export class SnapshotZipFS extends BasePortableFakeFS {
         ppath.resolve(
           snapshotPP,
           npath.toPortablePath(
-            npath.relative(npath.fromPortablePath(this.originalCwd), npath.fromPortablePath(p))
-          )
-        ),
-        ppath.resolve(
-          snapshotPP,
-          npath.toPortablePath(
             npath.relative(
               toNamespacedPath(npath.fromPortablePath(this.root)),
               toNamespacedPath(npath.fromPortablePath(p))
@@ -140,9 +132,39 @@ export class SnapshotZipFS extends BasePortableFakeFS {
         ),
       ])
     )
+    console.log('FINDME', p, pathsToTry)
     for (const path of pathsToTry) {
       const portablePath = npath.toPortablePath(path)
+      let blah = false
+      if (p.toString().endsWith('mocha/bin/mocha.js')) {
+        blah = true
+        console.log('FINDME HERE')
+        console.log('FINDME HERE looking for:', p)
+        console.log('FINDME HERE root:', this.root)
+        console.log(
+          'FINDME HERE root, real:',
+          this.baseFs.realpathSync(npath.toPortablePath(this.root))
+        )
+        console.log('FINDME HERE cwd:', process.cwd())
+        console.log(
+          'FINDME HERE cwd, real:',
+          this.baseFs.realpathSync(npath.toPortablePath(process.cwd()))
+        )
+        console.log(
+          'FINDME HERE cwd relative:',
+          npath.relative(npath.fromPortablePath(process.cwd()), npath.fromPortablePath(p))
+        )
+        console.log(
+          'FINDME HERE root relative:',
+          npath.relative(
+            toNamespacedPath(npath.fromPortablePath(this.root)),
+            toNamespacedPath(npath.fromPortablePath(p))
+          )
+        )
+      }
+
       if (this.zipFs.existsSync(portablePath)) {
+        if (blah) console.log('FINDME HERE success')
         return {
           subPath: portablePath,
         }
